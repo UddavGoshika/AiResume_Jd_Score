@@ -59,6 +59,7 @@ with col2:
     jd_text = st.text_area("📃 Job Description (Paste text here)", "")
 
 
+match_score = re.search(r"(\d+)/100", match_score_section)
 
 
 if match_score:
