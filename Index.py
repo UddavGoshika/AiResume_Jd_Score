@@ -2,7 +2,7 @@ import streamlit as st
 import cohere
 import PyPDF2
 import docx2txt
-from cohere_utils import co  # Import the cohere client from your utils module
+# from cohere_utils import co  # Import the cohere client from your utils module
 # === API KEY ===
 
 
