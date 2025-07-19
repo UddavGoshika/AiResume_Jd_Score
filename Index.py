@@ -1,26 +1,26 @@
-
-
 import streamlit as st
 import cohere
 import PyPDF2
 import docx2txt
-from dotenv import load_dotenv
 import os
-
-# === Load Environment Variables ===
-load_dotenv()
-api_key = os.getenv("API_KEY") or st.secrets.get("API_KEY")
-
-# === Initialize Cohere Client ===
-if not api_key:
-    st.error("🚨 Cohere API key not found. Please set it in your .env file.")
-    st.stop()
-co = cohere.Client(api_key)
+from dotenv import load_dotenv
 
 # === Page Config ===
 st.set_page_config(page_title="Resume Matcher", page_icon="🧠", layout="centered")
+st.title("🎯 Resume vs JD Analyzer")
+st.markdown("Upload your **Resume** and **Job Description** to see how well they match!")
 
-# === Text Extraction ===
+# === Load API Key ===
+load_dotenv()
+api_key = os.getenv("API_KEY")
+co = cohere.Client(api_key)
+
+# === Session State Init ===
+for key in ['result', 'resume_text', 'jd_text']:
+    if key not in st.session_state:
+        st.session_state[key] = ""
+
+# === Extract Text Function ===
 def extract_text(file):
     if file.name.endswith(".pdf"):
         reader = PyPDF2.PdfReader(file)
@@ -28,9 +28,9 @@ def extract_text(file):
     elif file.name.endswith(".docx"):
         return docx2txt.process(file)
     else:
-        return "❌ Unsupported file type."
+        return "Unsupported file type."
 
-# === Cohere Analysis ===
+# === Cohere Analysis Function ===
 def analyze_resume_vs_jd(resume_text, jd_text):
     prompt = f"""
 You are a job matching assistant.
@@ -50,84 +50,68 @@ Respond in bullet points only.
     response = co.chat(model="command-r-plus", message=prompt)
     return response.text
 
-# === Streamlit UI ===
-st.title("🎯 Resume vs JD Analyzer")
-st.markdown("Upload your **Resume** and paste your **Job Description** to see how well they match!")
-
+# === Inputs ===
 col1, col2 = st.columns(2)
 with col1:
-    resume_file = st.file_uploader("📄 Upload Resume (PDF or DOCX)", type=["pdf", "docx"], key="resume_upload")
+    resume_file = st.file_uploader("📄 Upload Resume (PDF or DOCX)", type=["pdf", "docx"])
 with col2:
-    jd_text = st.text_area("📃 Job Description (Paste text here)", "")
+    jd_input = st.text_area("📃 Job Description", st.session_state.jd_text)
 
-
-if resume_file and jd_text.strip():
-    st.success("✅ Inputs ready. Click below to analyze.")
+# === Analyze Button ===
+if resume_file and jd_input:
+    st.success("✅ Inputs received. Click Analyze to proceed.")
     if st.button("🔍 Analyze"):
-        with st.spinner("Analyzing with AI..."):
+        with st.spinner("Analyzing..."):
             resume_text = extract_text(resume_file)
-            result = analyze_resume_vs_jd(resume_text, jd_text)
-        st.subheader("📊 Result")
-        st.markdown(
-            f"<div style='background-color:#f0f2f6;padding:15px;border-radius:10px;color:#333;'>{result.replace('-', '🔹')}</div>",
-            unsafe_allow_html=True
-        )
-import re
-import streamlit as st
+            jd_text = jd_input
 
-# 💡 Use the actual result from your AI
-result = """🔹 Match Score: 35/100 🔹 Missing/Weak Keywords: 🔹 Microsoft Office 🔹 Excel 🔹 Data Analysis 🔹 WIP management 🔹 Training program development 🔹 Process improvements 🔹 High🔹value/high🔹risk item handling 🔹 Network expansion 🔹 Suggestions: 🔹 Emphasize basic knowledge in SQL, programming, and data analysis to align with the job requirements. 🔹 Highlight any experience with Microsoft Office products and applications, especially Excel. 🔹 Consider including projects or experiences related to process improvement, training program development, or network expansion to better match the preferred qualifications. 🔹 Focus on transferable skills such as problem🔹solving, adaptability, and collaboration, which are valuable in various roles. 🔹 Tailor the resume to highlight relevant skills and experiences that match the job responsibilities and qualifications."""
+            st.session_state.resume_text = resume_text
+            st.session_state.jd_text = jd_text
+            st.session_state.result = analyze_resume_vs_jd(resume_text, jd_text)
 
-# ✅ 1. Clean splits using regex
-match_score = re.search(r"Match Score: (.+?)🔹", result)
-match_score_text = match_score.group(1).strip() if match_score else "❌ Not found"
+# === Parse & Show Result ===
+if st.session_state.result:
+    result = st.session_state.result
 
-keywords_section = re.search(r"Missing/Weak Keywords:(.+?)Suggestions:", result)
-keywords_text = keywords_section.group(1).strip() if keywords_section else "❌ Not found"
+    # Split result using bullet sections
+    import re
+    match_score = re.search(r"Match Score: (.+?)🔹", result)
+    match_score_text = match_score.group(1).strip() if match_score else "❌ Not found"
 
-suggestions_section = re.search(r"Suggestions:(.+)", result)
-suggestions_text = suggestions_section.group(1).strip() if suggestions_section else "❌ Not found"
+    keywords_section = re.search(r"Missing/Weak Keywords:(.+?)Suggestions:", result)
+    keywords_text = keywords_section.group(1).strip() if keywords_section else "❌ Not found"
 
-# ✅ 2. Format bullets
-def format_bullets(text):
-    lines = re.split(r"🔹", text)
-    return "".join(f"<li>{line.strip()}</li>" for line in lines if line.strip())
+    suggestions_section = re.search(r"Suggestions:(.+)", result)
+    suggestions_text = suggestions_section.group(1).strip() if suggestions_section else "❌ Not found"
 
-# ✅ 3. Display in separate sections
-st.markdown(f"""
-<div style='background-color:#e3f2fd;padding:15px;border-radius:10px;margin-bottom:15px;'>
-  <h4 style='color:#0d47a1;'>🔹 Match Score</h4>
-  <p style='margin:0;font-size:16px;color:#000000;'>{match_score_text}</p>
-</div>
-""", unsafe_allow_html=True)
+    def format_bullets(text):
+        lines = re.split(r"🔹", text)
+        return "".join(f"<li>{line.strip()}</li>" for line in lines if line.strip())
 
-st.markdown(f"""
-<div style='background-color:#fce4ec;padding:15px;border-radius:10px;margin-bottom:15px;'>
-  <h4 style='color:#880e4f;'>🔹 Missing / Weak Keywords</h4>
-  <ul style='color:#000000;'>{format_bullets(keywords_text)}</ul>
-</div>
-""", unsafe_allow_html=True)
+    # Render each section in separate boxes
+    st.markdown(f"""
+    <div style='background-color:#e3f2fd;padding:15px;border-radius:10px;margin-bottom:15px;'>
+        <h4 style='color:#0d47a1;'>🔹 Match Score</h4>
+        <p style='color:#0d47a1;font-size:18px;'>{match_score_text}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-st.markdown(f"""
-<div style='background-color:#e8f5e9;padding:15px;border-radius:10px;'>
-  <h4 style='color:#1b5e20;'>🔹 Suggestions to Improve Resume</h4>
-  <ul style='color:#000000;'>{format_bullets(suggestions_text)}</ul>
-</div>
-""", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style='background-color:#fce4ec;padding:15px;border-radius:10px;margin-bottom:15px;'>
+        <h4 style='color:#880e4f;'>🔹 Missing / Weak Keywords</h4>
+        <ul style='color:#880e4f;'>{format_bullets(keywords_text)}</ul>
+    </div>
+    """, unsafe_allow_html=True)
 
-# st.markdown(
-#     f"""
-#     <div style='background-color:#fce4ec;padding:15px;border-radius:10px;margin-bottom:15px;'>
-#         <h4 style='color:#880e4f;'>🔹 Missing / Weak Keywords</h4>
-#         <p style='color:#000000;'>{keywords_section.replace('-', '🔹 ')}</p>
-#     </div>
-#     """, unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style='background-color:#e8f5e9;padding:15px;border-radius:10px;'>
+        <h4 style='color:#1b5e20;'>🔹 Suggestions to Improve Resume</h4>
+        <ul style='color:#1b5e20;'>{format_bullets(suggestions_text)}</ul>
+    </div>
+    """, unsafe_allow_html=True)
 
-# st.markdown(
-#     f"""
-#     <div style='background-color:#e8f5e9;padding:15px;border-radius:10px;'>
-#         <h4 style='color:#1b5e20;'>🔹 Suggestions to Improve Resume</h4>
-#         <p style='color:#000000;'>{suggestions_section.replace('-', '🔹 ')}</p>
-#     </div>
-#     """, unsafe_allow_html=True)
-
+# === Reset Button ===
+if st.button("🔄 Reset"):
+    for key in ['result', 'resume_text', 'jd_text']:
+        st.session_state[key] = ""
+    st.experimental_rerun()
