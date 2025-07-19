@@ -97,21 +97,21 @@ def format_bullets(text):
 st.markdown(f"""
 <div style='background-color:#e3f2fd;padding:15px;border-radius:10px;margin-bottom:15px;'>
   <h4 style='color:#0d47a1;'>🔹 Match Score</h4>
-  <p style='margin:0;font-size:16px;'>{match_score_text}</p>
+  <p style='margin:0;font-size:16px;color:#000000;'>{match_score_text}</p>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown(f"""
 <div style='background-color:#fce4ec;padding:15px;border-radius:10px;margin-bottom:15px;'>
   <h4 style='color:#880e4f;'>🔹 Missing / Weak Keywords</h4>
-  <ul>{format_bullets(keywords_text)}</ul>
+  <ul style='color:#000000;'>{format_bullets(keywords_text)}</ul>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown(f"""
 <div style='background-color:#e8f5e9;padding:15px;border-radius:10px;'>
   <h4 style='color:#1b5e20;'>🔹 Suggestions to Improve Resume</h4>
-  <ul>{format_bullets(suggestions_text)}</ul>
+  <ul style='color:#000000;'>{format_bullets(suggestions_text)}</ul>
 </div>
 """, unsafe_allow_html=True)
 
@@ -119,7 +119,7 @@ st.markdown(f"""
 #     f"""
 #     <div style='background-color:#fce4ec;padding:15px;border-radius:10px;margin-bottom:15px;'>
 #         <h4 style='color:#880e4f;'>🔹 Missing / Weak Keywords</h4>
-#         <p>{keywords_section.replace('-', '🔹 ')}</p>
+#         <p style='color:#000000;'>{keywords_section.replace('-', '🔹 ')}</p>
 #     </div>
 #     """, unsafe_allow_html=True)
 
@@ -127,7 +127,7 @@ st.markdown(f"""
 #     f"""
 #     <div style='background-color:#e8f5e9;padding:15px;border-radius:10px;'>
 #         <h4 style='color:#1b5e20;'>🔹 Suggestions to Improve Resume</h4>
-#         <p>{suggestions_section.replace('-', '🔹 ')}</p>
+#         <p style='color:#000000;'>{suggestions_section.replace('-', '🔹 ')}</p>
 #     </div>
 #     """, unsafe_allow_html=True)
 
