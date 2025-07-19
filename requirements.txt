@@ -1,4 +1,5 @@
 cohere
 PyPDF2
+docx2txt
 
 
