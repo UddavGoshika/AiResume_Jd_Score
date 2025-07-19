@@ -56,7 +56,7 @@ st.markdown("Upload your **Resume** and **Job Description** to see how well they
 
 col1, col2 = st.columns(2)
 with col1:
-    resume_file = st.file_uploader("📄 Upload Resume (PDF or DOCX)", type=["pdf", "docx"])
+    resume_file = st.file_uploader("📄 Upload Resume (PDF or DOCX)", type=["pdf", "docx"],key="resume_upload")
 with col2:
     
 
