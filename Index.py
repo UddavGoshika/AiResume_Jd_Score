@@ -110,4 +110,9 @@ st.markdown(styled_output, unsafe_allow_html=True)
 
 import re
 
+import re
+
 match_score = re.search(r"(\d+)/100", match_score_section)
+if match_score:
+    score = int(match_score.group(1))
+    st.progress(score / 100)
