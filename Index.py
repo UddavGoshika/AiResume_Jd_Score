@@ -71,7 +71,7 @@ if resume_file and jd_text.strip():
         # === Process Result ===
         match_score_section = result.split("Missing/Weak Keywords:")[0].strip()
         keywords_section = result.split("Missing/Weak Keywords:")[1].split("Suggestions to Improve")[0].strip()
-suggestions_section = result.split("Suggestions to Improve")[1].strip()
+        suggestions_section = result.split("Suggestions to Improve")[1].strip()
 
         # Extract score for progress bar
         match = re.search(r"(\d+)/100", match_score_section)
