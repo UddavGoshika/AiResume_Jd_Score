@@ -59,10 +59,10 @@ with col1:
 with col2:
     jd_text = st.text_area("📃 Paste Job Description Here", "", height=200)
 
-# ------------------- 7. PARSE AI RESPONSE INTO HTML -------------------
+# ------------------- 7. HTML BULLET BUILDER -------------------
 def build_html_list(text):
-    items = [line.strip("🔹- \n") for line in text.splitlines() if line.strip()]
-    return ''.join(f"<li>{item}</li>" for item in items)
+    items = [line.strip("🔹-• \n").strip() for line in text.splitlines() if line.strip()]
+    return ''.join(f"<li>{item}</li>" for item in items if item)
 
 # ------------------- 8. ANALYZE BUTTON -------------------
 if resume_file and jd_text.strip():
@@ -74,32 +74,30 @@ if resume_file and jd_text.strip():
 
         # ------------------- 9. CLEAN & EXTRACT RESPONSE -------------------
         try:
-            # Normalize AI output for consistent parsing
+            # Normalize section headers
             result = result.replace("Missing or weak keywords:", "Missing/Weak Keywords:")
             result = result.replace("Suggestions to improve:", "Suggestions to Improve")
+            result = result.replace("Suggestions to Improve Resume", "Suggestions to Improve")
 
-            # Extract sections safely
+            # Split sections
             parts = result.split("Missing/Weak Keywords:")
             match_score_section = parts[0].strip()
-            keywords_section = parts[1].split("Suggestions to Improve")[0].strip() if "Suggestions to Improve" in parts[1] else ""
-            suggestions_section = parts[1].split("Suggestions to Improve")[1].strip() if "Suggestions to Improve" in parts[1] else ""
+            rest = parts[1] if len(parts) > 1 else ""
+            keywords_section = rest.split("Suggestions to Improve")[0].strip() if "Suggestions to Improve" in rest else ""
+            suggestions_section = rest.split("Suggestions to Improve")[1].strip() if "Suggestions to Improve" in rest else ""
 
         except Exception as e:
             st.error(f"⚠️ Unable to parse AI response: {e}")
-            st.text(result)  # Show raw output for debug
+            st.text_area("Debug Output", result, height=300)
             st.stop()
 
-        # Extract numeric score
+        # Extract score (default 0 if fail)
         match = re.search(r"(\d{1,3})/100", match_score_section)
         score = int(match.group(1)) if match else 0
 
         # ------------------- 10. DISPLAY RESULTS -------------------
         st.subheader("📊 Match Score")
         st.progress(score / 100)
-
-        def build_html_list(text):
-            items = [line.strip("🔹-• \n").strip() for line in text.splitlines() if line.strip()]
-            return ''.join(f"<li>{item}</li>" for item in items if item)
 
         styled_output = f"""
         <div style="background-color:#e3f2fd;padding:15px;border-radius:10px;margin-bottom:20px;">
