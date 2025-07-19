@@ -1,28 +1,26 @@
-# ------------------- 1. IMPORT LIBRARIES -------------------
+
+
 import streamlit as st
 import cohere
 import PyPDF2
 import docx2txt
 from dotenv import load_dotenv
 import os
-import re
 
-# ------------------- 2. LOAD API KEY -------------------
+# === Load Environment Variables ===
 load_dotenv()
 api_key = os.getenv("API_KEY") or st.secrets.get("API_KEY")
 
+# === Initialize Cohere Client ===
 if not api_key:
-    st.error("🚨 Cohere API key not found. Please set it in a .env file or Streamlit Cloud secrets.")
+    st.error("🚨 Cohere API key not found. Please set it in your .env file.")
     st.stop()
-
 co = cohere.Client(api_key)
 
-# ------------------- 3. PAGE CONFIG -------------------
+# === Page Config ===
 st.set_page_config(page_title="Resume Matcher", page_icon="🧠", layout="centered")
-st.title("🧠 AI Resume vs JD Analyzer")
-st.markdown("Compare your resume with a job description and get improvement suggestions!")
 
-# ------------------- 4. TEXT EXTRACTION -------------------
+# === Text Extraction ===
 def extract_text(file):
     if file.name.endswith(".pdf"):
         reader = PyPDF2.PdfReader(file)
@@ -32,7 +30,7 @@ def extract_text(file):
     else:
         return "❌ Unsupported file type."
 
-# ------------------- 5. AI ANALYSIS FUNCTION -------------------
+# === Cohere Analysis ===
 def analyze_resume_vs_jd(resume_text, jd_text):
     prompt = f"""
 You are a job matching assistant.
@@ -52,72 +50,72 @@ Respond in bullet points only.
     response = co.chat(model="command-r-plus", message=prompt)
     return response.text
 
-# ------------------- 6. INPUT UI -------------------
+# === Streamlit UI ===
+st.title("🎯 Resume vs JD Analyzer")
+st.markdown("Upload your **Resume** and paste your **Job Description** to see how well they match!")
+
 col1, col2 = st.columns(2)
 with col1:
     resume_file = st.file_uploader("📄 Upload Resume (PDF or DOCX)", type=["pdf", "docx"], key="resume_upload")
 with col2:
-    jd_text = st.text_area("📃 Paste Job Description Here", "", height=200)
+    jd_text = st.text_area("📃 Job Description (Paste text here)", "")
 
-# ------------------- 7. HTML BULLET BUILDER -------------------
-def build_html_list(text):
-    items = [line.strip("🔹-• \n").strip() for line in text.splitlines() if line.strip()]
-    return ''.join(f"<li>{item}</li>" for item in items if item)
 
-# ------------------- 8. ANALYZE BUTTON -------------------
+match_score = re.search(r"(\d+)/100", match_score_section)
+
+
+if match_score:
+    score = int(match_score.group(1))
+    st.progress(score / 100)
+
+
 if resume_file and jd_text.strip():
-    st.success("✅ Inputs received. Click Analyze to proceed.")
+    st.success("✅ Inputs ready. Click below to analyze.")
     if st.button("🔍 Analyze"):
-        with st.spinner("🔎 AI analyzing your resume..."):
+        with st.spinner("Analyzing with AI..."):
             resume_text = extract_text(resume_file)
             result = analyze_resume_vs_jd(resume_text, jd_text)
+        st.subheader("📊 Result")
+        st.markdown(
+            f"<div style='background-color:#f0f2f6;padding:15px;border-radius:10px;color:#333;'>{result.replace('-', '🔹')}</div>",
+            unsafe_allow_html=True
+        )
+st.subheader("📊 Result")
 
-        # ------------------- 9. CLEAN & EXTRACT RESPONSE -------------------
-        try:
-            # Normalize section headers
-            result = result.replace("Missing or weak keywords:", "Missing/Weak Keywords:")
-            result = result.replace("Suggestions to improve:", "Suggestions to Improve")
-            result = result.replace("Suggestions to Improve Resume", "Suggestions to Improve")
+# --- Split and Format Result ---
+match_score_section = result.split("Missing/Weak Keywords:")[0].strip()
+keywords_section = result.split("Missing/Weak Keywords:")[1].split("Suggestions to Improve")[0].strip()
+suggestions_section = result.split("Suggestions to Improve")[1].strip()
 
-            # Split sections
-            parts = result.split("Missing/Weak Keywords:")
-            match_score_section = parts[0].strip()
-            rest = parts[1] if len(parts) > 1 else ""
-            keywords_section = rest.split("Suggestions to Improve")[0].strip() if "Suggestions to Improve" in rest else ""
-            suggestions_section = rest.split("Suggestions to Improve")[1].strip() if "Suggestions to Improve" in rest else ""
+# --- Styled HTML Output ---
+styled_output = f"""
+<div style="background-color:#e3f2fd;padding:15px;border-radius:10px;margin-bottom:10px;">
+    <h4 style="color:#0d47a1;">🔹 Match Score</h4>
+    <p style="font-size:18px;">{match_score_section}</p>
+</div>
 
-        except Exception as e:
-            st.error(f"⚠️ Unable to parse AI response: {e}")
-            st.text_area("Debug Output", result, height=300)
-            st.stop()
+<div style="background-color:#fce4ec;padding:15px;border-radius:10px;margin-bottom:10px;">
+    <h4 style="color:#880e4f;">🔹 Missing / Weak Keywords</h4>
+    <ul>
+        {''.join(f"<li>{line[2:].strip()}</li>" for line in keywords_section.split('🔹') if line.strip())}
+    </ul>
+</div>
 
-        # Extract score (default 0 if fail)
-        match = re.search(r"(\d{1,3})/100", match_score_section)
-        score = int(match.group(1)) if match else 0
+<div style="background-color:#e8f5e9;padding:15px;border-radius:10px;">
+    <h4 style="color:#1b5e20;">🔹 Suggestions to Improve Resume</h4>
+    <ul>
+        {''.join(f"<li>{line[2:].strip()}</li>" for line in suggestions_section.split('🔹') if line.strip())}
+    </ul>
+</div>
+"""
 
-        # ------------------- 10. DISPLAY RESULTS -------------------
-        st.subheader("📊 Match Score")
-        st.progress(score / 100)
+st.markdown(styled_output, unsafe_allow_html=True)
 
-        styled_output = f"""
-        <div style="background-color:#e3f2fd;padding:15px;border-radius:10px;margin-bottom:20px;">
-            <h4 style="color:#0d47a1;margin-top:0;">🔹 Match Score</h4>
-            <p style="font-size:18px;margin:0;">{match_score_section}</p>
-        </div>
+import re
 
-        <div style="background-color:#fce4ec;padding:15px;border-radius:10px;margin-bottom:20px;">
-            <h4 style="color:#880e4f;margin-top:0;">🔹 Missing / Weak Keywords</h4>
-            <ul style="margin:0;padding-left:20px;">
-                {build_html_list(keywords_section)}
-            </ul>
-        </div>
+import re
 
-        <div style="background-color:#e8f5e9;padding:15px;border-radius:10px;">
-            <h4 style="color:#1b5e20;margin-top:0;">🔹 Suggestions to Improve Resume</h4>
-            <ul style="margin:0;padding-left:20px;">
-                {build_html_list(suggestions_section)}
-            </ul>
-        </div>
-        """
-
-        st.markdown(styled_output, unsafe_allow_html=True)
+match_score = re.search(r"(\d+)/100", match_score_section)
+if match_score:
+    score = int(match_score.group(1))
+    st.progress(score / 100)
