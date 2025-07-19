@@ -1,4 +1,4 @@
 cohere
-pypdf
+PyPDF2
 
 
