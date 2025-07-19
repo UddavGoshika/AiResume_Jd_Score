@@ -74,20 +74,32 @@ if resume_file and jd_text.strip():
 
         # ------------------- 9. CLEAN & EXTRACT RESPONSE -------------------
         try:
-            match_score_section = result.split("Missing/Weak Keywords:")[0].strip()
-            keywords_section = result.split("Missing/Weak Keywords:")[1].split("Suggestions to Improve")[0].strip()
-            suggestions_section = result.split("Suggestions to Improve")[1].strip()
-        except IndexError:
-            st.error("⚠️ Unable to parse response. Try rephrasing the job description.")
+            # Normalize AI output for consistent parsing
+            result = result.replace("Missing or weak keywords:", "Missing/Weak Keywords:")
+            result = result.replace("Suggestions to improve:", "Suggestions to Improve")
+
+            # Extract sections safely
+            parts = result.split("Missing/Weak Keywords:")
+            match_score_section = parts[0].strip()
+            keywords_section = parts[1].split("Suggestions to Improve")[0].strip() if "Suggestions to Improve" in parts[1] else ""
+            suggestions_section = parts[1].split("Suggestions to Improve")[1].strip() if "Suggestions to Improve" in parts[1] else ""
+
+        except Exception as e:
+            st.error(f"⚠️ Unable to parse AI response: {e}")
+            st.text(result)  # Show raw output for debug
             st.stop()
 
-        # Extract score for progress bar
-        match = re.search(r"(\d+)/100", match_score_section)
+        # Extract numeric score
+        match = re.search(r"(\d{1,3})/100", match_score_section)
         score = int(match.group(1)) if match else 0
 
         # ------------------- 10. DISPLAY RESULTS -------------------
         st.subheader("📊 Match Score")
         st.progress(score / 100)
+
+        def build_html_list(text):
+            items = [line.strip("🔹-• \n").strip() for line in text.splitlines() if line.strip()]
+            return ''.join(f"<li>{item}</li>" for item in items if item)
 
         styled_output = f"""
         <div style="background-color:#e3f2fd;padding:15px;border-radius:10px;margin-bottom:20px;">
