@@ -2,6 +2,11 @@ cohere
 PyPDF2
 docx2txt
 python-dotenv
+streamlit
+cohere
+python-dotenv
+PyPDF2
+docx2txt
 
 
 
