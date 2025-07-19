@@ -7,7 +7,7 @@ import os
 
 # === Load Environment Variables ===
 load_dotenv()
-api_key = os.getenv("API_KEY")
+api_key = os.getenv("API_KEY") or st.secrets.get("API_KEY")
 
 # === Initialize Cohere Client ===
 if not api_key:
