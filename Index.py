@@ -96,19 +96,19 @@ def build_html_list(text):
 styled_output = f"""
 <div style="background-color:#e3f2fd;padding:15px;border-radius:10px;margin-bottom:10px;">
     <h4 style="color:#000000;">🔹 Match Score</h4>
-    <p style="font-size:18px;">{match_score_section}</p>
+    <p style="font-size:18px; color:#000000;">{match_score_section}</p>
 </div>
 
 <div style="background-color:#fce4ec;padding:15px;border-radius:10px;margin-bottom:10px;">
     <h4 style="color:#000000;">🔹 Missing / Weak Keywords</h4>
-    <ul>
+    <ul style="background-color:#e8f5e9;color:#000000;padding:10px;border-radius:8px;margin:0;">
         {build_html_list(keywords_section)}
     </ul>
 </div>
 
 <div style="background-color:#e8f5e9;padding:15px;border-radius:10px;">
     <h4 style="color:#000000;">🔹 Suggestions to Improve Resume</h4>
-    <ul>
+    <ul style="background-color:#e8f5e9;color:#000000;padding:10px;border-radius:8px;margin:0;">
         {build_html_list(suggestions_section)}
     </ul>
 </div>
