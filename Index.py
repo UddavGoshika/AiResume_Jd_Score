@@ -72,36 +72,48 @@ if resume_file and jd_text.strip():
             f"<div style='background-color:#f0f2f6;padding:15px;border-radius:10px;color:#333;'>{result.replace('-', '🔹')}</div>",
             unsafe_allow_html=True
         )
-# # Normalize result formatting
-# result = result.replace("Missing or weak keywords:", "Missing/Weak Keywords:")
-# result = result.replace("Suggestions to improve:", "Suggestions to Improve")
-# result = result.replace("Suggestions to Improve Resume", "Suggestions to Improve")
+import re
+import streamlit as st
 
-# # Split into parts safely
-# match_score_section = ""
-# keywords_section = ""
-# suggestions_section = ""
+# 💡 Use the actual result from your AI
+result = """🔹 Match Score: 35/100 🔹 Missing/Weak Keywords: 🔹 Microsoft Office 🔹 Excel 🔹 Data Analysis 🔹 WIP management 🔹 Training program development 🔹 Process improvements 🔹 High🔹value/high🔹risk item handling 🔹 Network expansion 🔹 Suggestions: 🔹 Emphasize basic knowledge in SQL, programming, and data analysis to align with the job requirements. 🔹 Highlight any experience with Microsoft Office products and applications, especially Excel. 🔹 Consider including projects or experiences related to process improvement, training program development, or network expansion to better match the preferred qualifications. 🔹 Focus on transferable skills such as problem🔹solving, adaptability, and collaboration, which are valuable in various roles. 🔹 Tailor the resume to highlight relevant skills and experiences that match the job responsibilities and qualifications."""
 
-# if "Missing/Weak Keywords:" in result:
-#     parts = result.split("Missing/Weak Keywords:")
-#     match_score_section = parts[0].strip()
-#     rest = parts[1] if len(parts) > 1 else ""
-#     if "Suggestions to Improve" in rest:
-#         keywords_section = rest.split("Suggestions to Improve")[0].strip()
-#         suggestions_section = rest.split("Suggestions to Improve")[1].strip()
-#     else:
-#         keywords_section = rest.strip()
-# else:
-#     match_score_section = result.strip()  # fallback
+# ✅ 1. Clean splits using regex
+match_score = re.search(r"Match Score: (.+?)🔹", result)
+match_score_text = match_score.group(1).strip() if match_score else "❌ Not found"
 
-# # Display separately in blocks
-# st.markdown(
-#     f"""
-#     <div style='background-color:#e3f2fd;padding:15px;border-radius:10px;margin-bottom:15px;'>
-#         <h4 style='color:#0d47a1;'>🔹 Match Score</h4>
-#         <p>{match_score_section}</p>
-#     </div>
-#     """, unsafe_allow_html=True)
+keywords_section = re.search(r"Missing/Weak Keywords:(.+?)Suggestions:", result)
+keywords_text = keywords_section.group(1).strip() if keywords_section else "❌ Not found"
+
+suggestions_section = re.search(r"Suggestions:(.+)", result)
+suggestions_text = suggestions_section.group(1).strip() if suggestions_section else "❌ Not found"
+
+# ✅ 2. Format bullets
+def format_bullets(text):
+    lines = re.split(r"🔹", text)
+    return "".join(f"<li>{line.strip()}</li>" for line in lines if line.strip())
+
+# ✅ 3. Display in separate sections
+st.markdown(f"""
+<div style='background-color:#e3f2fd;padding:15px;border-radius:10px;margin-bottom:15px;'>
+  <h4 style='color:#0d47a1;'>🔹 Match Score</h4>
+  <p style='margin:0;font-size:16px;'>{match_score_text}</p>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown(f"""
+<div style='background-color:#fce4ec;padding:15px;border-radius:10px;margin-bottom:15px;'>
+  <h4 style='color:#880e4f;'>🔹 Missing / Weak Keywords</h4>
+  <ul>{format_bullets(keywords_text)}</ul>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown(f"""
+<div style='background-color:#e8f5e9;padding:15px;border-radius:10px;'>
+  <h4 style='color:#1b5e20;'>🔹 Suggestions to Improve Resume</h4>
+  <ul>{format_bullets(suggestions_text)}</ul>
+</div>
+""", unsafe_allow_html=True)
 
 # st.markdown(
 #     f"""
