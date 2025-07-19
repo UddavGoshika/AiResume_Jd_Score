@@ -67,8 +67,7 @@ if resume_file and jd_text.strip():
         with st.spinner("Analyzing with AI..."):
             resume_text = extract_text(resume_file)
             result = analyze_resume_vs_jd(resume_text, jd_text)
-
-       import re
+import re
 
 # === Parse the Result ===
 try:
