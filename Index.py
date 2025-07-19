@@ -58,12 +58,7 @@ with col1:
 with col2:
     jd_text = st.text_area("📃 Job Description (Paste text here)", "")
 
-import re
 
-match_score = re.search(r"(\d+)/100", match_score_section)
-if match_score:
-    score = int(match_score.group(1))
-    st.progress(score / 100)
 
 st.subheader("📊 Result")
 
@@ -96,7 +91,12 @@ styled_output = f"""
 
 st.markdown(styled_output, unsafe_allow_html=True)
 
+import re
 
+match_score = re.search(r"(\d+)/100", match_score_section)
+if match_score:
+    score = int(match_score.group(1))
+    st.progress(score / 100)
 
 
 if resume_file and jd_text.strip():
