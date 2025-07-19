@@ -60,6 +60,7 @@ with col1:
 with col2:
     jd_text = st.text_area("📃 Job Description (Paste text here)", "")
 import re
+match_score_section = result.split("Missing/Weak Keywords:")[0].strip()
 
 match_score = re.search(r"(\d+)/100", match_score_section)
 
