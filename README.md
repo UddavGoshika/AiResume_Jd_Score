@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/YOUR_USER/YOUR_REPO/demo.gif" width="600" alt="Demo GIF">
+  <img src="https://raw.githubusercontent.com/UddavGoshika/AiResume_Jd_Score/refs/heads/main/FirstUI.png" width="600" alt="Demo GIF">
 </p>
 
 ---
