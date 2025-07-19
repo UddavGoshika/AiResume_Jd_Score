@@ -60,6 +60,23 @@ with col2:
 
 
 
+
+if match_score:
+    score = int(match_score.group(1))
+    st.progress(score / 100)
+
+
+if resume_file and jd_text.strip():
+    st.success("✅ Inputs ready. Click below to analyze.")
+    if st.button("🔍 Analyze"):
+        with st.spinner("Analyzing with AI..."):
+            resume_text = extract_text(resume_file)
+            result = analyze_resume_vs_jd(resume_text, jd_text)
+        st.subheader("📊 Result")
+        st.markdown(
+            f"<div style='background-color:#f0f2f6;padding:15px;border-radius:10px;color:#333;'>{result.replace('-', '🔹')}</div>",
+            unsafe_allow_html=True
+        )
 st.subheader("📊 Result")
 
 # --- Split and Format Result ---
@@ -94,19 +111,3 @@ st.markdown(styled_output, unsafe_allow_html=True)
 import re
 
 match_score = re.search(r"(\d+)/100", match_score_section)
-if match_score:
-    score = int(match_score.group(1))
-    st.progress(score / 100)
-
-
-if resume_file and jd_text.strip():
-    st.success("✅ Inputs ready. Click below to analyze.")
-    if st.button("🔍 Analyze"):
-        with st.spinner("Analyzing with AI..."):
-            resume_text = extract_text(resume_file)
-            result = analyze_resume_vs_jd(resume_text, jd_text)
-        st.subheader("📊 Result")
-        st.markdown(
-            f"<div style='background-color:#f0f2f6;padding:15px;border-radius:10px;color:#333;'>{result.replace('-', '🔹')}</div>",
-            unsafe_allow_html=True
-        )
