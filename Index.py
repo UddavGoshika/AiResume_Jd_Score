@@ -86,7 +86,7 @@ st.subheader("📊 Result")
 # --- Split and Format Result ---
 match_score_section = result.split("Missing/Weak Keywords:")[0].strip()
 keywords_section = result.split("Missing/Weak Keywords:")[1].split("Suggestions to Improve")[0].strip()
-suggestions_section = result.split("Suggestions to Improve")[1].strip()
+# suggestions_section = result.split("Suggestions to Improve")[1].strip()
 
 # --- Styled HTML Output ---
 styled_output = f"""
