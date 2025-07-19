@@ -1,4 +1,4 @@
-<h1 align="center">📄💼 AI Resume‑JD Matcher</h1>
+<h1 align="center">📄💼 AI Resume‑JD Score Finder</h1>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Streamlit-AI-blue?logo=streamlit" alt="Streamlit badge" />
@@ -27,7 +27,7 @@
 ## ♦️ScreenShots
 
 <p align="center">
-  <img src="[https://user-images.githubusercontent.com/YOUR_USER/YOUR_REPO/demo.gif](https://raw.githubusercontent.com/UddavGoshika/AiResume_Jd_Score/refs/heads/main/Testing.png)" width="600" alt="Demo GIF">
+  <img src="https://raw.githubusercontent.com/UddavGoshika/AiResume_Jd_Score/refs/heads/main/Testing.png" width="600" alt="Demo GIF">
 </p>
 
 
