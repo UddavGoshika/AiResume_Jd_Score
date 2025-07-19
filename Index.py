@@ -68,7 +68,54 @@ if resume_file and jd_text.strip():
             resume_text = extract_text(resume_file)
             result = analyze_resume_vs_jd(resume_text, jd_text)
         st.subheader("📊 Result")
-        st.markdown(
-            f"<div style='background-color:#f0f2f6;padding:15px;border-radius:10px;color:#333;'>{result.replace('-', '🔹')}</div>",
-            unsafe_allow_html=True
-        )
+        # st.markdown(
+        #     f"<div style='background-color:#f0f2f6;padding:15px;border-radius:10px;color:#333;'>{result.replace('-', '🔹')}</div>",
+        #     unsafe_allow_html=True
+        # )
+# Normalize result formatting
+result = result.replace("Missing or weak keywords:", "Missing/Weak Keywords:")
+result = result.replace("Suggestions to improve:", "Suggestions to Improve")
+result = result.replace("Suggestions to Improve Resume", "Suggestions to Improve")
+
+# Split into parts safely
+match_score_section = ""
+keywords_section = ""
+suggestions_section = ""
+
+if "Missing/Weak Keywords:" in result:
+    parts = result.split("Missing/Weak Keywords:")
+    match_score_section = parts[0].strip()
+    rest = parts[1] if len(parts) > 1 else ""
+    if "Suggestions to Improve" in rest:
+        keywords_section = rest.split("Suggestions to Improve")[0].strip()
+        suggestions_section = rest.split("Suggestions to Improve")[1].strip()
+    else:
+        keywords_section = rest.strip()
+else:
+    match_score_section = result.strip()  # fallback
+
+# Display separately in blocks
+st.markdown(
+    f"""
+    <div style='background-color:#e3f2fd;padding:15px;border-radius:10px;margin-bottom:15px;'>
+        <h4 style='color:#0d47a1;'>🔹 Match Score</h4>
+        <p>{match_score_section}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown(
+    f"""
+    <div style='background-color:#fce4ec;padding:15px;border-radius:10px;margin-bottom:15px;'>
+        <h4 style='color:#880e4f;'>🔹 Missing / Weak Keywords</h4>
+        <p>{keywords_section.replace('-', '🔹 ')}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown(
+    f"""
+    <div style='background-color:#e8f5e9;padding:15px;border-radius:10px;'>
+        <h4 style='color:#1b5e20;'>🔹 Suggestions to Improve Resume</h4>
+        <p>{suggestions_section.replace('-', '🔹 ')}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
