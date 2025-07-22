@@ -40,7 +40,7 @@ Experience it now: [**LIVE APP**] ➡️ https://airesumejdscore.streamlit.app/
 
 ## 🧩 Tech Stack
 
-- **Cohere API** for LLM-based matching
+- **API** for LLM-based matching
 - **Streamlit** front-end for intuitive UI
 - **PyPDF2 + docx2txt** for resume parsing
 - Optional: 🐍 FastAPI (for headless API mode)
