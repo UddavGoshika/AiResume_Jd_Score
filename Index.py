@@ -5,22 +5,17 @@ import docx2txt
 import os
 from dotenv import load_dotenv
 
-# === Page Config ===
 st.set_page_config(page_title="Resume Matcher", page_icon="🧠", layout="centered")
 st.title("🎯 Resume vs JD Analyzer")
 st.markdown("Upload your **Resume** and **Job Description** to see how well they match!")
-
-# === Load API Key ===
 load_dotenv()
 api_key = os.getenv("API_KEY")
 co = cohere.Client(api_key)
 
-# === Session State Init ===
 for key in ['result', 'resume_text', 'jd_text']:
     if key not in st.session_state:
         st.session_state[key] = ""
 
-# === Extract Text Function ===
 def extract_text(file):
     if file.name.endswith(".pdf"):
         reader = PyPDF2.PdfReader(file)
@@ -29,8 +24,6 @@ def extract_text(file):
         return docx2txt.process(file)
     else:
         return "Unsupported file type."
-
-# === Cohere Analysis Function ===
 def analyze_resume_vs_jd(resume_text, jd_text):
     prompt = f"""
 You are a job matching assistant.
@@ -57,7 +50,6 @@ with col1:
 with col2:
     jd_input = st.text_area("📃 Job Description", st.session_state.jd_text)
 
-# === Analyze Button ===
 if resume_file and jd_input:
     st.success("✅ Inputs received. Click Analyze to proceed.")
     if st.button("🔍 Analyze"):
@@ -69,7 +61,6 @@ if resume_file and jd_input:
             st.session_state.jd_text = jd_text
             st.session_state.result = analyze_resume_vs_jd(resume_text, jd_text)
 
-# === Parse & Show Result ===
 if st.session_state.result:
     result = st.session_state.result
 
