@@ -47,7 +47,7 @@ Experience it now: [**LIVE APP**] ➡️ https://airesumejdscore.streamlit.app/
 
 ---
 
-## 📦 Quickstart Guide
+## 📦 Quickstart Guide kadjsfasdfjkkaksdfdf
 
 ```bash
 git clone https://github.com/UddavGoshika/AiResume_Jd_Score.git
